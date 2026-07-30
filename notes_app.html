@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aesthetic Sticky Notes</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'></path><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'></path></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="notes_app.css">
+</head>
+
+<body>
+
+    <div id="desktop">
+    </div>
+
+    <div id="dock">
+        <button class="dock-btn" id="new-note-main" onclick="spawnNotepad()">
+            <svg viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Note
+        </button>
+        <button class="dock-btn" onclick="triggerFileOpen()">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"></path>
+            </svg>
+            Open
+        </button>
+        <button class="dock-btn" onclick="clearAllNotes()">
+            <svg viewBox="0 0 24 24">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Clear All
+        </button>
+    </div>
+
+    <script>
+        let notepadPrefs = {};
+        let savedNotesMap = {};
+        let activeZIndex = 100;
+
+        function initializeApp() {
+            const storedPrefs = localStorage.getItem('webapp_notepadPrefs');
+            const storedNotes = localStorage.getItem('webapp_savedNotesMap');
+
+            if (storedPrefs) notepadPrefs = JSON.parse(storedPrefs);
+            if (storedNotes) savedNotesMap = JSON.parse(storedNotes);
+
+            const noteIds = Object.keys(savedNotesMap);
+
+            if (noteIds.length > 0) {
+                noteIds.forEach((id) => {
+                    spawnNotepad(id);
+                });
+            } else {
+                spawnNotepad(null, "Welcome to the Web App Notepad!\n\n1. You can drag me.\n2. You can resize me from the bottom right.\n3. Click 'Note' above to rename me.\n4. Click 'New Note' in the dock to add more.");
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key.toLowerCase() === 'o') {
+                e.preventDefault();
+                triggerFileOpen();
+            }
+        });
+
+        function triggerFileOpen() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'text/plain, text/html, text/css, text/javascript, application/json, .md, .csv';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target.result;
+                    let fileName = file.name;
+                    fileName = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+                    spawnNotepad(null, content, fileName);
+                    showCustomToast(`Opened: ${file.name}`);
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function showCustomToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function clearAllNotes() {
+            localStorage.removeItem('webapp_savedNotesMap');
+            savedNotesMap = {};
+            document.getElementById('desktop').innerHTML = '';
+            showCustomToast("All notes cleared!");
+        }
+
+        function spawnNotepad(existingId = null, initialText = "", customTitle = null) {
+            const noteId = existingId || 'note_' + Date.now();
+            let noteData = savedNotesMap[noteId];
+
+            if (!noteData) {
+                noteData = { text: initialText, title: customTitle || "Note" };
+            } else if (typeof noteData === 'string') {
+                noteData = { text: noteData + (initialText ? '\n\n' + initialText : ''), title: customTitle || "Note" };
+            } else {
+                if (initialText) noteData.text += (noteData.text ? '\n\n' : '') + initialText;
+                if (customTitle && !existingId) noteData.title = customTitle;
+            }
+
+            savedNotesMap[noteId] = noteData;
+            localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+
+            const noteEl = document.createElement('div');
+            noteEl.className = 'custom-floating-notepad';
+            noteEl.dataset.noteId = noteId;
+            noteEl.dataset.theme = notepadPrefs.theme || 'light';
+
+            const offset = Math.floor(Math.random() * 50);
+            noteEl.style.top = (50 + offset) + 'px';
+            noteEl.style.left = (50 + offset + (document.querySelectorAll('.custom-floating-notepad').length * 20)) + 'px';
+            noteEl.style.zIndex = ++activeZIndex;
+
+            noteEl.innerHTML = `
+                <div class="notepad-header">
+                    <div class="np-title-container">
+                        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <h2 class="np-note-title" contenteditable="true" spellcheck="false" title="Click to rename">${noteData.title}</h2>
+                    </div>
+                    <div class="notepad-controls">
+                        <span class="save-status">Saved</span>
+                        <button class="np-btn np-new-btn" title="Create New Note">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                        <button class="np-btn np-download-btn" title="Download">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
+                        <button class="np-btn np-settings-btn" title="Settings">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        </button>
+                        <button class="np-btn np-close-btn" title="Delete Note">
+                            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="np-settings-panel">
+                    <div class="np-setting-group">
+                        <label>Theme:</label>
+                        <select class="np-theme-select">
+                            <option value="light">Light Glass</option>
+                            <option value="dark">Dark Obsidian</option>
+                            <option value="matcha">Matcha Green</option>
+                            <option value="lavender">Lavender Haze</option>
+                            <option value="midnight">Midnight Blue</option>
+                            <option value="sakura">Sakura Pink</option>
+                            <option value="sunset">Sunset Glow</option>
+                            <option value="ocean">Ocean Breeze</option>
+                            <option value="mocha">Coffee Mocha</option>
+                            <option value="cyberpunk">Cyberpunk Neon</option>
+                        </select>
+                    </div>
+                    <div class="np-setting-group">
+                        <label>Font:</label>
+                        <select class="np-font-select">
+                            <option value="system-ui, -apple-system, sans-serif">Default Modern</option>
+                            <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+                            <option value="Courier New, monospace">Typewriter</option>
+                            <option value="Consolas, monospace">Code</option>
+                            <option value="Georgia, serif">Classic</option>
+                            <option value="'Comic Sans MS', cursive">Casual</option>
+                            <option value="'Segoe Print', 'Ink Free', cursive">Handwritten</option>
+                        </select>
+                    </div>
+                    <div class="np-setting-group">
+                        <label>Text Size:</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="np-size-slider" min="10" max="30" value="14.5">
+                            <span class="np-size-display" style="width: 20px; font-weight: bold; text-align: right;">14</span>
+                        </div>
+                    </div>
+                    <div class="np-setting-group">
+                        <label>Bg Image:</label>
+                        <div class="np-file-wrapper">
+                            <button class="np-bg-upload-btn">Upload</button>
+                            <input type="file" class="np-file-input" accept="image/*" style="display: none;">
+                            <button class="np-bg-clear-btn">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <textarea class="notepad-textarea" placeholder="Type your notes here..."></textarea>
+            `;
+
+            document.getElementById('desktop').appendChild(noteEl);
+
+            const header = noteEl.querySelector('.notepad-header');
+            const titleEl = noteEl.querySelector('.np-note-title');
+            const textarea = noteEl.querySelector('.notepad-textarea');
+            const newBtn = noteEl.querySelector('.np-new-btn');
+            const closeBtn = noteEl.querySelector('.np-close-btn');
+            const settingsBtn = noteEl.querySelector('.np-settings-btn');
+            const downloadBtn = noteEl.querySelector('.np-download-btn');
+            const settingsPanel = noteEl.querySelector('.np-settings-panel');
+            const saveStatus = noteEl.querySelector('.save-status');
+
+            textarea.value = noteData.text;
+            applyStylesToNote(noteEl, textarea);
+
+            noteEl.addEventListener('mousedown', () => { noteEl.style.zIndex = ++activeZIndex; });
+            newBtn.addEventListener('click', () => { spawnNotepad(); });
+
+            closeBtn.addEventListener('click', () => {
+                noteEl.style.opacity = '0';
+                noteEl.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    noteEl.remove();
+                    delete savedNotesMap[noteId];
+                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                }, 250);
+            });
+
+            settingsBtn.addEventListener('click', () => settingsPanel.classList.toggle('active'));
+
+            downloadBtn.addEventListener('click', () => {
+                if (!textarea.value.trim()) return showCustomToast("Note is empty!");
+                const safeTitle = titleEl.innerText.trim().replace(/[<>:"/\\|?*]+/g, '_') || "Note";
+                const url = URL.createObjectURL(new Blob([textarea.value], { type: "text/plain" }));
+                const a = document.createElement("a");
+                a.href = url; a.download = `${safeTitle}.txt`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showCustomToast("File Downloaded!");
+            });
+
+            titleEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); titleEl.blur(); }
+            });
+
+            titleEl.addEventListener('input', () => {
+                savedNotesMap[noteId] = { text: textarea.value, title: titleEl.innerText };
+                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+            });
+
+            let typingTimer;
+            textarea.addEventListener('input', () => {
+                clearTimeout(typingTimer);
+                saveStatus.style.opacity = '0';
+                typingTimer = setTimeout(() => {
+                    savedNotesMap[noteId] = { text: textarea.value, title: titleEl.innerText };
+                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                    saveStatus.style.opacity = '1';
+                    setTimeout(() => saveStatus.style.opacity = '0', 1500);
+                }, 500);
+            });
+
+            const themeSelect = noteEl.querySelector('.np-theme-select');
+            const fontSelect = noteEl.querySelector('.np-font-select');
+            const sizeSlider = noteEl.querySelector('.np-size-slider');
+            const sizeDisplay = noteEl.querySelector('.np-size-display');
+            const fileInput = noteEl.querySelector('.np-file-input');
+            const uploadBtn = noteEl.querySelector('.np-bg-upload-btn');
+            const clearBtn = noteEl.querySelector('.np-bg-clear-btn');
+
+            if (notepadPrefs.theme) themeSelect.value = notepadPrefs.theme;
+            if (notepadPrefs.font) fontSelect.value = notepadPrefs.font;
+            if (notepadPrefs.fontSize) {
+                sizeSlider.value = notepadPrefs.fontSize;
+                sizeDisplay.innerText = Math.round(notepadPrefs.fontSize);
+            }
+
+            function saveAndApplyGlobal(imageData = null, clearImg = false) {
+                notepadPrefs.theme = themeSelect.value;
+                notepadPrefs.font = fontSelect.value;
+                notepadPrefs.fontSize = sizeSlider.value;
+                if (imageData) notepadPrefs.bgImage = imageData;
+                else if (clearImg) notepadPrefs.bgImage = null;
+
+                localStorage.setItem('webapp_notepadPrefs', JSON.stringify(notepadPrefs));
+
+                document.querySelectorAll('.custom-floating-notepad').forEach(note => {
+                    applyStylesToNote(note, note.querySelector('.notepad-textarea'));
+                    note.querySelector('.np-theme-select').value = notepadPrefs.theme;
+                    note.querySelector('.np-font-select').value = notepadPrefs.font;
+                    note.querySelector('.np-size-slider').value = notepadPrefs.fontSize;
+                    note.querySelector('.np-size-display').innerText = Math.round(notepadPrefs.fontSize);
+                });
+            }
+
+            themeSelect.addEventListener('change', () => saveAndApplyGlobal());
+            fontSelect.addEventListener('change', () => saveAndApplyGlobal());
+            sizeSlider.addEventListener('input', (e) => {
+                sizeDisplay.innerText = Math.round(e.target.value);
+                saveAndApplyGlobal();
+            });
+
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            clearBtn.addEventListener('click', () => saveAndApplyGlobal(null, true));
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => saveAndApplyGlobal(event.target.result);
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+            header.addEventListener('mousedown', dragStart);
+            header.addEventListener('touchstart', dragStart, { passive: false });
+
+            function dragStart(e) {
+                // Jo button ke title par click kariye to drag na thavu joiye
+                if (e.target.closest('button') || e.target.tagName === 'SPAN' || e.target.closest('.np-note-title')) return;
+
+                noteEl.style.zIndex = ++activeZIndex;
+
+                // Check karo ke user e Mouse thi click karyu chhe ke Aangli (Touch) thi
+                let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+                pos3 = clientX;
+                pos4 = clientY;
+
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchend', dragEnd);
+                document.addEventListener('touchmove', drag, { passive: false });
+            }
+
+            function drag(e) {
+                e.preventDefault(); // Note drag karti vakhate aakhu page scroll na thay eni mate
+
+                let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+                pos1 = pos3 - clientX;
+                pos2 = pos4 - clientY;
+                pos3 = clientX;
+                pos4 = clientY;
+
+                let newTop = noteEl.offsetTop - pos2;
+                let newLeft = noteEl.offsetLeft - pos1;
+
+                // Note ne screen ni bahar jata rokva mate
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 50));
+
+                noteEl.style.top = newTop + "px";
+                noteEl.style.left = newLeft + "px";
+            }
+
+            function dragEnd() {
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchend', dragEnd);
+                document.removeEventListener('touchmove', drag);
+            }
+
+        }
+
+        function applyStylesToNote(noteEl, textarea) {
+            if (notepadPrefs.font) textarea.style.setProperty('font-family', notepadPrefs.font, 'important');
+            if (notepadPrefs.fontSize) textarea.style.setProperty('--np-font-size', notepadPrefs.fontSize + 'px', 'important');
+            noteEl.dataset.theme = notepadPrefs.theme || 'light';
+
+            if (notepadPrefs.bgImage) {
+                noteEl.style.backgroundImage = `linear-gradient(var(--np-bg), var(--np-bg)), url('${notepadPrefs.bgImage}')`;
+            } else {
+                noteEl.style.backgroundImage = 'none';
+            }
+        }
+
+        window.onload = initializeApp;
+    </script>
+</body>
+
+</html>

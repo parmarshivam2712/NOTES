@@ -1,0 +1,585 @@
+:root {
+    --desktop-bg: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+}
+
+.custom-floating-notepad {
+    --np-bg: rgba(255, 255, 255, 0.55);
+    --np-border: rgba(255, 255, 255, 0.8);
+    --np-text: #1f2937;
+    --np-accent: #2563eb;
+    --np-header: rgba(255, 255, 255, 0.5);
+    --np-btn-bg: rgba(255, 255, 255, 0.6);
+    --np-btn-hover-bg: #ffffff;
+    --np-btn-icon: #4b5563;
+    --np-panel-bg: rgba(255, 255, 255, 0.9);
+    --np-input-bg: #ffffff;
+    --np-input-text: #1f2937;
+    --np-input-border: #d1d5db;
+    --np-scrollbar: rgba(0, 0, 0, 0.15);
+    --np-scrollbar-hover: rgba(0, 0, 0, 0.25);
+}
+
+.custom-floating-notepad[data-theme="dark"] {
+    --np-bg: rgba(24, 24, 27, 0.65);
+    --np-border: rgba(255, 255, 255, 0.15);
+    --np-text: #f4f4f5;
+    --np-accent: #60a5fa;
+    --np-header: rgba(24, 24, 27, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.1);
+    --np-btn-hover-bg: rgba(255, 255, 255, 0.2);
+    --np-btn-icon: #d4d4d8;
+    --np-panel-bg: rgba(39, 39, 42, 0.95);
+    --np-input-bg: #3f3f46;
+    --np-input-text: #f4f4f5;
+    --np-input-border: #52525b;
+    --np-scrollbar: rgba(255, 255, 255, 0.2);
+    --np-scrollbar-hover: rgba(255, 255, 255, 0.3);
+}
+
+.custom-floating-notepad[data-theme="matcha"] {
+    --np-bg: rgba(220, 235, 220, 0.6);
+    --np-border: rgba(255, 255, 255, 0.6);
+    --np-text: #14532d;
+    --np-accent: #16a34a;
+    --np-header: rgba(220, 235, 220, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.5);
+    --np-btn-hover-bg: #ffffff;
+    --np-btn-icon: #166534;
+    --np-panel-bg: rgba(235, 245, 235, 0.95);
+    --np-input-bg: #ffffff;
+    --np-input-text: #14532d;
+    --np-input-border: #bbf7d0;
+}
+
+.custom-floating-notepad[data-theme="lavender"] {
+    --np-bg: rgba(230, 220, 245, 0.6);
+    --np-border: rgba(255, 255, 255, 0.6);
+    --np-text: #4c1d95;
+    --np-accent: #7c3aed;
+    --np-header: rgba(230, 220, 245, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.5);
+    --np-btn-hover-bg: #ffffff;
+    --np-btn-icon: #5b21b6;
+    --np-panel-bg: rgba(245, 240, 255, 0.95);
+    --np-input-bg: #ffffff;
+    --np-input-text: #4c1d95;
+    --np-input-border: #ddd6fe;
+}
+
+.custom-floating-notepad[data-theme="midnight"] {
+    --np-bg: rgba(15, 23, 42, 0.7);
+    --np-border: rgba(255, 255, 255, 0.1);
+    --np-text: #e2e8f0;
+    --np-accent: #38bdf8;
+    --np-header: rgba(15, 23, 42, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.1);
+    --np-btn-hover-bg: rgba(255, 255, 255, 0.2);
+    --np-btn-icon: #94a3b8;
+    --np-panel-bg: rgba(30, 41, 59, 0.95);
+    --np-input-bg: #1e293b;
+    --np-input-text: #f1f5f9;
+    --np-input-border: #334155;
+    --np-scrollbar: rgba(255, 255, 255, 0.2);
+}
+
+.custom-floating-notepad[data-theme="sakura"] {
+    --np-bg: rgba(250, 230, 235, 0.6);
+    --np-border: rgba(255, 255, 255, 0.6);
+    --np-text: #831843;
+    --np-accent: #e11d48;
+    --np-header: rgba(250, 230, 235, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.5);
+    --np-btn-hover-bg: #ffffff;
+    --np-btn-icon: #9f1239;
+    --np-panel-bg: rgba(255, 245, 248, 0.95);
+    --np-input-bg: #ffffff;
+    --np-input-text: #831843;
+    --np-input-border: #fecdd3;
+}
+
+.custom-floating-notepad[data-theme="sunset"] {
+    --np-bg: rgba(255, 237, 224, 0.65);
+    --np-border: rgba(255, 255, 255, 0.6);
+    --np-text: #7c2d12;
+    --np-accent: #ea580c;
+    --np-header: rgba(255, 237, 224, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.5);
+    --np-btn-hover-bg: #ffffff;
+    --np-btn-icon: #9a3412;
+    --np-panel-bg: rgba(255, 245, 238, 0.95);
+    --np-input-bg: #ffffff;
+    --np-input-text: #7c2d12;
+    --np-input-border: #fed7aa;
+}
+
+.custom-floating-notepad[data-theme="ocean"] {
+    --np-bg: rgba(207, 250, 254, 0.6);
+    --np-border: rgba(255, 255, 255, 0.6);
+    --np-text: #164e63;
+    --np-accent: #0891b2;
+    --np-header: rgba(207, 250, 254, 0.8);
+    --np-btn-bg: rgba(255, 255, 255, 0.5);
+    --np-btn-hover-bg: #ffffff;
+    --np-btn-icon: #155e75;
+    --np-panel-bg: rgba(236, 254, 255, 0.95);
+    --np-input-bg: #ffffff;
+    --np-input-text: #164e63;
+    --np-input-border: #a5f3fc;
+}
+
+.custom-floating-notepad[data-theme="mocha"] {
+    --np-bg: rgba(62, 39, 35, 0.75);
+    --np-border: rgba(255, 255, 255, 0.1);
+    --np-text: #efebe9;
+    --np-accent: #d7ccc8;
+    --np-header: rgba(62, 39, 35, 0.9);
+    --np-btn-bg: rgba(255, 255, 255, 0.1);
+    --np-btn-hover-bg: rgba(255, 255, 255, 0.2);
+    --np-btn-icon: #bcaaa4;
+    --np-panel-bg: rgba(78, 52, 46, 0.95);
+    --np-input-bg: #3e2723;
+    --np-input-text: #efebe9;
+    --np-input-border: #5d4037;
+    --np-scrollbar: rgba(255, 255, 255, 0.2);
+}
+
+.custom-floating-notepad[data-theme="cyberpunk"] {
+    --np-bg: rgba(9, 9, 11, 0.85);
+    --np-border: rgba(217, 70, 239, 0.4);
+    --np-text: #fdf4ff;
+    --np-accent: #22d3ee;
+    --np-header: rgba(9, 9, 11, 0.9);
+    --np-btn-bg: rgba(217, 70, 239, 0.15);
+    --np-btn-hover-bg: rgba(217, 70, 239, 0.3);
+    --np-btn-icon: #f0abfc;
+    --np-panel-bg: rgba(24, 24, 27, 0.95);
+    --np-input-bg: #000000;
+    --np-input-text: #22d3ee;
+    --np-input-border: #d946ef;
+    --np-scrollbar: rgba(217, 70, 239, 0.3);
+    --np-scrollbar-hover: rgba(34, 211, 238, 0.5);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(-45deg, #1e3a8a, #4c1d95, #9f1239, #0f172a);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#desktop {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#dock {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 12px 24px;
+    border-radius: 24px;
+    display: flex;
+    gap: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 2147483647;
+}
+
+.dock-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.dock-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dock-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+    stroke: currentColor;
+    fill: none;
+}
+
+@keyframes notepadPopIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.custom-floating-notepad {
+    position: absolute;
+    width: 320px;
+    height: 400px;
+    resize: both;
+    min-width: 250px;
+    min-height: 250px;
+    max-width: 95vw;
+    max-height: 80vh;
+    background-color: var(--np-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--np-border);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    color: var(--np-text);
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    animation: notepadPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.custom-floating-notepad::-webkit-resizer {
+    background-color: transparent;
+    border-left: 20px solid transparent;
+    border-bottom: 20px solid var(--np-border);
+    border-bottom-right-radius: 16px;
+}
+
+.notepad-header {
+    padding: 12px 16px;
+    background: var(--np-header);
+    border-bottom: 1px solid var(--np-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
+    transition: background 0.4s ease, border-color 0.4s ease;
+    flex-shrink: 0;
+}
+
+.notepad-header:active {
+    cursor: grabbing;
+}
+
+.np-title-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--np-text);
+    overflow: hidden;
+}
+
+.np-title-container svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--np-accent);
+    transition: stroke 0.4s ease;
+    flex-shrink: 0;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.np-note-title {
+    margin: 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.3px !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    border: 1px solid transparent !important;
+    cursor: text !important;
+    transition: all 0.2s !important;
+    max-width: 180px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    outline: none !important;
+    color: var(--np-text) !important;
+}
+
+.np-note-title:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.custom-floating-notepad[data-theme="dark"] .np-note-title:hover,
+.custom-floating-notepad[data-theme="midnight"] .np-note-title:hover,
+.custom-floating-notepad[data-theme="mocha"] .np-note-title:hover,
+.custom-floating-notepad[data-theme="cyberpunk"] .np-note-title:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.np-note-title:focus {
+    border-color: var(--np-border) !important;
+    background: var(--np-input-bg) !important;
+    color: var(--np-input-text) !important;
+    box-shadow: 0 0 0 2px var(--np-accent) !important;
+}
+
+.notepad-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.np-btn {
+    background: var(--np-btn-bg);
+    border: 1px solid var(--np-border);
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--np-btn-icon);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    padding: 0;
+}
+
+.np-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.np-btn:hover {
+    background: var(--np-btn-hover-bg);
+    color: var(--np-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.np-btn:active {
+    transform: translateY(0);
+}
+
+.np-settings-panel {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    background: var(--np-panel-bg);
+    border-bottom: 1px solid var(--np-border);
+    font-size: 13px;
+    color: var(--np-text);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.np-settings-panel.active {
+    max-height: 250px;
+    opacity: 1;
+    padding: 14px 16px;
+    overflow-y: auto;
+}
+
+.np-setting-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.np-setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.notepad-textarea {
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px;
+    border: none;
+    resize: none;
+    background: transparent;
+    color: var(--np-text);
+    font-size: var(--np-font-size, 14.5px) !important;
+    line-height: 1.6;
+    outline: none;
+    transition: color 0.4s ease;
+    font-family: inherit !important;
+}
+
+.notepad-textarea::-webkit-scrollbar,
+.np-settings-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notepad-textarea::-webkit-scrollbar-track,
+.np-settings-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notepad-textarea::-webkit-scrollbar-thumb,
+.np-settings-panel::-webkit-scrollbar-thumb {
+    background-color: var(--np-scrollbar);
+    border-radius: 10px;
+}
+
+.notepad-textarea::-webkit-scrollbar-thumb:hover,
+.np-settings-panel::-webkit-scrollbar-thumb:hover {
+    background-color: var(--np-scrollbar-hover);
+}
+
+.save-status {
+    font-size: 11px;
+    color: var(--np-accent);
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: var(--np-btn-bg);
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-right: 4px;
+}
+
+.np-setting-group select {
+    border: 1px solid var(--np-input-border) !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+    cursor: pointer !important;
+    background-color: var(--np-input-bg) !important;
+    color: var(--np-input-text) !important;
+    font-size: 12px !important;
+    outline: none;
+    width: 130px;
+}
+
+.np-size-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 4px;
+    background: var(--np-input-border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.np-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--np-accent);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.np-file-wrapper {
+    display: flex;
+    gap: 6px;
+}
+
+.np-file-wrapper button {
+    border: 1px solid var(--np-input-border) !important;
+    background-color: var(--np-input-bg) !important;
+    color: var(--np-input-text) !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    cursor: pointer !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s !important;
+}
+
+.np-file-wrapper button:hover {
+    background-color: var(--np-btn-hover-bg) !important;
+    color: var(--np-accent) !important;
+}
+
+.toast-msg {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 99999;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.toast-msg.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .custom-floating-notepad {
+        width: 90vw !important;
+        height: 60vh !important;
+        min-width: unset;
+        /* Mobile ma resize ni jarur nathi karan ke e auto-fit thashe */
+        resize: none;
+    }
+
+    #dock {
+        width: 90vw;
+        padding: 10px;
+        justify-content: center;
+        border-radius: 16px;
+    }
+
+    .dock-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+}
