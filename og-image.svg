@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Aesthetic Sticky Notes preview">
+  <rect width="1200" height="630" rx="40" fill="#0f172a"/>
+  <rect x="70" y="70" width="1060" height="490" rx="32" fill="#111827"/>
+  <rect x="120" y="140" width="260" height="220" rx="24" fill="#fef3c7"/>
+  <rect x="430" y="110" width="320" height="260" rx="24" fill="#dbeafe"/>
+  <rect x="790" y="180" width="250" height="200" rx="24" fill="#dcfce7"/>
+  <text x="120" y="470" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="48" font-weight="700" fill="#f8fafc">Aesthetic Sticky Notes</text>
+  <text x="120" y="520" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="28" fill="#cbd5e1">Free online notepad and organizer</text>
+</svg>
