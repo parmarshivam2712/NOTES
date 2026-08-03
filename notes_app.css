@@ -715,14 +715,28 @@ body {
     }
 
     #dock {
-        width: 90vw;
-        padding: 10px;
-        justify-content: center;
-        border-radius: 16px;
+        position: fixed;
+        left: 50%;
+        right: auto;
+        bottom: 16px;
+        transform: translateX(-50%);
+        width: calc(100% - 32px);
+        max-width: 450px;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 8px;
+        gap: 8px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
     .dock-btn {
-        padding: 10px 12px;
-        font-size: 12px;
+        padding: 10px 8px;
+        font-size: 11px;
+        width: auto;
+        flex: 1;
+        max-width: 140px;
+        gap: 6px;
+        justify-content: center;
     }
 }
