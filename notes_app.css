@@ -716,11 +716,11 @@ body {
 
     #dock {
         position: fixed;
-        left: 50%;
-        right: auto;
-        bottom: 16px;
-        transform: translateX(-50%);
-        width: calc(100% - 32px);
+        left: 16px;
+        right: 16px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        margin: 0 auto;
+        width: auto;
         max-width: 450px;
         flex-direction: row;
         justify-content: space-between;
