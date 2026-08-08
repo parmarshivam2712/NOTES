@@ -300,8 +300,8 @@
                 
                 <div class="np-settings-panel">
                     <div class="np-setting-group">
-                        <label>Theme:</label>
-                        <select class="np-theme-select">
+                        <label for="theme-${noteId}">Theme:</label>
+                        <select id="theme-${noteId}" class="np-theme-select">
                             <option value="light">Light Glass</option>
                             <option value="dark">Dark Obsidian</option>
                             <option value="matcha">Matcha Green</option>
@@ -315,8 +315,8 @@
                         </select>
                     </div>
                     <div class="np-setting-group">
-                        <label>Font:</label>
-                        <select class="np-font-select">
+                        <label for="font-${noteId}">Font:</label>
+                        <select id="font-${noteId}" class="np-font-select">
                             <option value="system-ui, -apple-system, sans-serif">Default Modern</option>
                             <option value="Trebuchet MS, sans-serif">Trebuchet</option>
                             <option value="Courier New, monospace">Typewriter</option>
@@ -327,23 +327,23 @@
                         </select>
                     </div>
                     <div class="np-setting-group">
-                        <label>Text Size:</label>
+                        <label for="size-${noteId}">Text Size:</label>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="range" class="np-size-slider" min="10" max="30" value="14.5">
+                            <input type="range" id="size-${noteId}" class="np-size-slider" min="10" max="30" value="14.5">
                             <span class="np-size-display" style="width: 20px; font-weight: bold; text-align: right;">14</span>
                         </div>
                     </div>
                     <div class="np-setting-group">
-                        <label>Bg Image:</label>
+                        <label for="bgfile-${noteId}">Bg Image:</label>
                         <div class="np-file-wrapper">
                             <button class="np-bg-upload-btn">Upload</button>
-                            <input type="file" class="np-file-input" accept="image/*" style="display: none;">
+                            <input type="file" id="bgfile-${noteId}" class="np-file-input" accept="image/*" style="display: none;">
                             <button class="np-bg-clear-btn">Clear</button>
                         </div>
                     </div>
                 </div>
 
-                <textarea class="notepad-textarea" placeholder="Type your notes here..."></textarea>
+                <textarea id="textarea-${noteId}" class="notepad-textarea" placeholder="Type your notes here..."></textarea>
             `;
 
             document.getElementById('desktop').appendChild(noteEl);
