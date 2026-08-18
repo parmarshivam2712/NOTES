@@ -160,6 +160,15 @@
     --np-scrollbar-hover: rgba(34, 211, 238, 0.5);
 }
 
+html {
+    overflow-y: scroll; /* Ensures consistent scrollbar gutter across all pages */
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -738,5 +747,348 @@ body {
         max-width: 140px;
         gap: 6px;
         justify-content: center;
+    }
+}
+
+/* Navigation Bar Styling */
+.main-navbar {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 999999;
+    order: 0;
+    box-sizing: border-box;
+    padding: 12px 16px;
+}
+
+.nav-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Prevents navbar from pushing out page width */
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.15rem;
+    transition: opacity 0.2s ease;
+}
+
+.nav-logo:hover {
+    opacity: 0.9;
+}
+
+.nav-logo svg {
+    width: 22px;
+    height: 22px;
+    stroke: #7c3aed;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Allows menu items to stack on narrow screens */
+    gap: 12px;
+    max-width: 100%;
+}
+
+.nav-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.25s ease, border-color 0.25s ease;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+}
+
+.nav-links a.active {
+    color: #ffffff;
+    font-weight: 700;
+    border-bottom: 2px solid #a78bfa;
+}
+
+.nav-links .coffee-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff !important;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-links .coffee-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+}
+
+.nav-links .coffee-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Mobile styles for navbar */
+@media (max-width: 600px) {
+    .nav-container {
+        padding: 10px 12px;
+    }
+    
+    .nav-logo span {
+        display: none; /* Hide text to save space on mobile */
+    }
+    
+    .nav-links {
+        gap: 12px;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+    
+    .nav-links .coffee-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Page Transition Animations */
+body {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+body.page-loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+body.page-leaving {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+/* Site-Wide Footer Styling */
+.site-footer {
+    background: #070a12;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 40px 24px 32px;
+    margin-top: auto; /* Push footer to bottom on short pages */
+    width: 100%;
+    order: 99; /* Ensure it stays below all other flex items */
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.footer-logo svg {
+    width: 20px;
+    height: 20px;
+    stroke: #7c3aed;
+}
+
+.footer-tagline {
+    font-size: 0.88rem;
+    color: #64748b;
+    max-width: 320px;
+    line-height: 1.5;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #a78bfa;
+}
+
+.footer-meta {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.footer-meta p {
+    margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 28px;
+    }
+    .footer-meta {
+        text-align: center;
+    }
+    .footer-links {
+        justify-content: center;
+        gap: 16px;
+    }
+    .footer-logo {
+        justify-content: center;
+    }
+}
+
+/* Override bottom padding on mobile to clear the floating dock */
+@media (max-width: 600px) {
+    .site-footer {
+        padding-bottom: 100px;
+    }
+}
+
+/* ==========================================================================
+   GLOBAL RESPONSIVE BREAKPOINTS (IMPLEMENTED FROM GUIDE)
+   ========================================================================== */
+
+/* 1. Large Desktops (Above 1200px) */
+@media (min-width: 1201px) {
+    .nav-container,
+    .contact-container,
+    .about-grid,
+    .features-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+/* 2. Tablets & Small Laptops (769px to 1024px) */
+@media (max-width: 1024px) {
+    /* Navbar adjust */
+    .nav-container {
+        padding: 0 24px;
+    }
+    
+    /* Layout Grids */
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .about-grid, 
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* 3. Mobile Phones & Small Tablets (Up to 768px) */
+@media (max-width: 768px) {
+    /* Navbar Collapse / Adjustments */
+    .main-navbar {
+        padding: 12px 16px;
+    }
+
+    .nav-container {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .nav-links {
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 0.88rem;
+    }
+
+    .nav-links .coffee-btn {
+        padding: 6px 12px;
+        font-size: 0.82rem;
+    }
+
+    /* Grids to Single Column */
+    .about-grid, 
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Typography scale down */
+    .about-hero h1,
+    .contact-hero h1,
+    .features-hero h1 {
+        font-size: 2rem !important;
+    }
+
+    .about-hero p,
+    .contact-hero p,
+    .features-hero p {
+        font-size: 1rem !important;
+    }
+}
+
+/* 4. Small Mobile Phones (Up to 480px) */
+@media (max-width: 480px) {
+    body {
+        padding: 0 10px;
+    }
+
+    .contact-form-wrapper {
+        padding: 20px 16px;
+    }
+
+    .info-card {
+        padding: 16px;
+    }
+}
+
+/* 5. Mobile Fallback (Stack View / Note width adjustments <= 640px) */
+@media (max-width: 640px) {
+    .custom-floating-notepad {
+        max-width: 90vw !important;
+        min-width: 280px !important;
     }
 }
