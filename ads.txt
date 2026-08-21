@@ -1,1 +1,1 @@
-google.com, pub-6251583216936846, DIRECT, f08c47fec0942fa0
+this is the extra file where you can put your  Google AdSense account id ad keys , ignore if dont want to do this . 
