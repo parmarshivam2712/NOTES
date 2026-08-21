@@ -1,20 +1,50 @@
-# Aesthetic Sticky Notes
+Aesthetic Sticky Notes
 
-A responsive, feature-rich web application designed for organizing notes with an intuitive dragging, resizing, and color-theming interface.
+A responsive and interactive sticky notes web application for creating, organizing, and managing notes in a simple visual workspace.
 
-## Features
+✨ Features
+📝 Interactive Sticky Notes — Create, edit, move, and resize notes directly on your workspace.
+🎨 Custom Themes — Personalize your notes and workspace with multiple color themes.
+💾 Persistent Storage — Notes are saved locally in your browser so your data remains available between sessions.
+📱 Responsive Design — Works smoothly across desktop, tablet, and mobile screen sizes.
+🖱️ Drag & Resize — Freely position and resize notes to organize your workspace the way you want.
+🚀 Live Demo
 
-* **Interactive Sticky Notes**: Easily create, drag, and resize your notes anywhere on your desktop workspace.
-* **Custom Themes**: Personalize your workspace with multiple built-in color themes.
-* **Persistent Storage**: Automatically saves your notes locally so you never lose your progress.
-* **Responsive Layout**: Designed to adapt smoothly across different screen sizes.
+Try the application here:
 
-## Live Demo
+Aesthetic Sticky Notes
 
-Check out the live application here: [https://get-sticky-notes.netlify.app](https://get-sticky-notes.netlify.app)
+🛠️ Tech Stack
+HTML5 — Application structure
+CSS3 — Styling, layout, and responsive design
+JavaScript — Interactions, note management, dragging, resizing, and local storage
+📸 Project Preview
 
-## Tech Stack
+Visit the live application to explore the interface and features:
 
-* **HTML5**
-* **CSS3**
-* **JavaScript**
+https://get-sticky-notes.netlify.app/
+
+📂 Project Structure
+Aesthetic Sticky Notes/
+├── index.html
+├── about.html
+├── contact.html
+├── features.html
+├── notes_app.css
+├── transitions.js
+├── favicon.svg
+├── og-image.svg
+├── robots.txt
+└── sitemap.xml
+
+🌐 Deployment
+
+The project is deployed using Netlify.
+
+Live website:
+
+https://get-sticky-notes.netlify.app/
+
+📄 License
+
+This project is available for personal and educational use.
