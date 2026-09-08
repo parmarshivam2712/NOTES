@@ -31,12 +31,14 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             max-width: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden; /* Prevents horizontal scroll drift */
+            overflow-x: hidden;
+            /* Prevents horizontal scroll drift */
         }
 
         body {
@@ -48,8 +50,8 @@
         }
 
         /* Fluid hero and sections */
-        .about-hero, 
-        .mission-section, 
+        .about-hero,
+        .mission-section,
         .about-grid {
             width: 100%;
             max-width: 1100px;
@@ -69,6 +71,7 @@
             font-weight: 800;
             background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 16px;
         }
@@ -82,14 +85,16 @@
         /* Dynamic single-column grid on mobile */
         .about-grid {
             display: grid;
-            grid-template-columns: 1fr; /* Strict 1 column for small screens */
+            grid-template-columns: 1fr;
+            /* Strict 1 column for small screens */
             gap: 16px;
             box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
             .about-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 columns on PC/Tablet */
+                grid-template-columns: repeat(3, 1fr);
+                /* 3 columns on PC/Tablet */
                 gap: 24px;
             }
         }
@@ -164,7 +169,8 @@
         .tech-badges {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap; /* Allows badges to flow to the next line */
+            flex-wrap: wrap;
+            /* Allows badges to flow to the next line */
             gap: 8px;
             margin-top: 24px;
         }
@@ -360,7 +366,8 @@
                     </svg>
                     <span>Aesthetic Notes</span>
                 </div>
-                <p class="footer-tagline">Capture reminders, lists, and thoughts instantly. 100% saved in your browser.</p>
+                <p class="footer-tagline">Capture reminders, lists, and thoughts instantly. 100% saved in your browser.
+                </p>
             </div>
             <div class="footer-links">
                 <a href="index.html">Home</a>
