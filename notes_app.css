@@ -362,6 +362,29 @@ body {
     z-index: 2147483647;
 }
 
+.dock-drag-handle {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 8px;
+    cursor: grab;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.2s;
+}
+
+.dock-drag-handle:active {
+    cursor: grabbing;
+}
+
+.dock-drag-handle:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.dock-drag-handle svg {
+    width: 24px;
+    height: 24px;
+}
+
 .dock-btn {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);

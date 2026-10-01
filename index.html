@@ -157,6 +157,16 @@
     </div>
 
     <div id="dock">
+        <div class="dock-drag-handle" title="Drag to move">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="5" r="1"></circle>
+                <circle cx="15" cy="5" r="1"></circle>
+                <circle cx="9" cy="12" r="1"></circle>
+                <circle cx="15" cy="12" r="1"></circle>
+                <circle cx="9" cy="19" r="1"></circle>
+                <circle cx="15" cy="19" r="1"></circle>
+            </svg>
+        </div>
         <button class="dock-btn" id="new-note-main" onclick="spawnNotepad()">
             <svg viewBox="0 0 24 24">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -526,6 +536,62 @@
             } else {
                 noteEl.style.backgroundImage = 'none';
             }
+        }
+
+        // Dock drag logic
+        const dock = document.getElementById('dock');
+        const dockHandle = document.querySelector('.dock-drag-handle');
+        let dockPos1 = 0, dockPos2 = 0, dockPos3 = 0, dockPos4 = 0;
+
+        if (dockHandle) {
+            dockHandle.addEventListener('mousedown', dockDragStart);
+            dockHandle.addEventListener('touchstart', dockDragStart, { passive: false });
+        }
+
+        function dockDragStart(e) {
+            e.preventDefault();
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            dockPos3 = clientX;
+            dockPos4 = clientY;
+
+            document.addEventListener('mouseup', dockDragEnd);
+            document.addEventListener('mousemove', dockDrag);
+            document.addEventListener('touchend', dockDragEnd);
+            document.addEventListener('touchmove', dockDrag, { passive: false });
+        }
+
+        function dockDrag(e) {
+            e.preventDefault();
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            dockPos1 = dockPos3 - clientX;
+            dockPos2 = dockPos4 - clientY;
+            dockPos3 = clientX;
+            dockPos4 = clientY;
+
+            // Remove right/bottom constraints to allow free movement
+            dock.style.right = 'auto';
+            dock.style.bottom = 'auto';
+            
+            // Constrain within window
+            let newTop = dock.offsetTop - dockPos2;
+            let newLeft = dock.offsetLeft - dockPos1;
+            
+            newTop = Math.max(0, Math.min(newTop, window.innerHeight - dock.offsetHeight));
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - dock.offsetWidth));
+
+            dock.style.top = newTop + "px";
+            dock.style.left = newLeft + "px";
+        }
+
+        function dockDragEnd() {
+            document.removeEventListener('mouseup', dockDragEnd);
+            document.removeEventListener('mousemove', dockDrag);
+            document.removeEventListener('touchend', dockDragEnd);
+            document.removeEventListener('touchmove', dockDrag);
         }
 
         window.onload = initializeApp;
