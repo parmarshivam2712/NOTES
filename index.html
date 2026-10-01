@@ -157,16 +157,6 @@
     </div>
 
     <div id="dock">
-        <div class="dock-drag-handle" title="Drag to move">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="5" r="1"></circle>
-                <circle cx="15" cy="5" r="1"></circle>
-                <circle cx="9" cy="12" r="1"></circle>
-                <circle cx="15" cy="12" r="1"></circle>
-                <circle cx="9" cy="19" r="1"></circle>
-                <circle cx="15" cy="19" r="1"></circle>
-            </svg>
-        </div>
         <button class="dock-btn" id="new-note-main" onclick="spawnNotepad()">
             <svg viewBox="0 0 24 24">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -281,10 +271,37 @@
             noteEl.dataset.noteId = noteId;
             noteEl.dataset.theme = notepadPrefs.theme || 'light';
 
-            const offset = Math.floor(Math.random() * 50);
-            noteEl.style.top = (50 + offset) + 'px';
-            noteEl.style.left = (50 + offset + (document.querySelectorAll('.custom-floating-notepad').length * 20)) + 'px';
+            if (noteData.left !== undefined && noteData.top !== undefined) {
+                noteEl.style.left = noteData.left + 'px';
+                noteEl.style.top = noteData.top + 'px';
+            } else {
+                const bounds = typeof getViewportBounds === 'function' ? getViewportBounds() : { minY: 50 };
+                const offset = Math.floor(Math.random() * 50);
+                noteEl.style.top = (bounds.minY + offset) + 'px';
+                noteEl.style.left = (50 + offset + (document.querySelectorAll('.custom-floating-notepad').length * 20)) + 'px';
+            }
+            
+            if (noteData.width !== undefined && noteData.height !== undefined) {
+                noteEl.style.width = noteData.width + 'px';
+                noteEl.style.height = noteData.height + 'px';
+            }
+            
+            // Enforce constraints immediately
+            if (typeof applyNoteConstraints === 'function') {
+                applyNoteConstraints(noteEl);
+            }
+
             noteEl.style.zIndex = ++activeZIndex;
+            
+            const resizeObserver = new ResizeObserver(() => {
+                if (typeof applyNoteConstraints === 'function') {
+                    applyNoteConstraints(noteEl);
+                }
+                savedNotesMap[noteId].width = noteEl.offsetWidth;
+                savedNotesMap[noteId].height = noteEl.offsetHeight;
+                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+            });
+            resizeObserver.observe(noteEl);
 
             noteEl.innerHTML = `
                 <div class="notepad-header">
@@ -471,57 +488,54 @@
                 }
             });
 
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            let dragOffsetX = 0;
+            let dragOffsetY = 0;
 
-            header.addEventListener('mousedown', dragStart);
-            header.addEventListener('touchstart', dragStart, { passive: false });
+            header.addEventListener('pointerdown', dragStart);
 
             function dragStart(e) {
-                // Jo button ke title par click kariye to drag na thavu joiye
+                // Do not drag if clicking a button or title
                 if (e.target.closest('button') || e.target.tagName === 'SPAN' || e.target.closest('.np-note-title')) return;
 
+                e.preventDefault();
                 noteEl.style.zIndex = ++activeZIndex;
 
-                // Check karo ke user e Mouse thi click karyu chhe ke Aangli (Touch) thi
-                let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                const rect = noteEl.getBoundingClientRect();
+                dragOffsetX = e.clientX - rect.left;
+                dragOffsetY = e.clientY - rect.top;
 
-                pos3 = clientX;
-                pos4 = clientY;
-
-                document.addEventListener('mouseup', dragEnd);
-                document.addEventListener('mousemove', drag);
-                document.addEventListener('touchend', dragEnd);
-                document.addEventListener('touchmove', drag, { passive: false });
+                header.setPointerCapture(e.pointerId);
+                header.addEventListener('pointermove', drag);
+                header.addEventListener('pointerup', dragEnd);
+                header.addEventListener('pointercancel', dragEnd);
             }
 
             function drag(e) {
-                e.preventDefault(); // Note drag karti vakhate aakhu page scroll na thay eni mate
+                e.preventDefault();
 
-                let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                let newLeft = e.clientX - dragOffsetX;
+                let newTop = e.clientY - dragOffsetY;
 
-                pos1 = pos3 - clientX;
-                pos2 = pos4 - clientY;
-                pos3 = clientX;
-                pos4 = clientY;
-
-                let newTop = noteEl.offsetTop - pos2;
-                let newLeft = noteEl.offsetLeft - pos1;
-
-                // Note ne screen ni bahar jata rokva mate
-                newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
-                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 50));
-
-                noteEl.style.top = newTop + "px";
                 noteEl.style.left = newLeft + "px";
+                noteEl.style.top = newTop + "px";
+                
+                // Use applyNoteConstraints to enforce boundaries dynamically as we drag
+                if (typeof applyNoteConstraints === 'function') {
+                    applyNoteConstraints(noteEl);
+                }
             }
 
-            function dragEnd() {
-                document.removeEventListener('mouseup', dragEnd);
-                document.removeEventListener('mousemove', drag);
-                document.removeEventListener('touchend', dragEnd);
-                document.removeEventListener('touchmove', drag);
+            function dragEnd(e) {
+                header.releasePointerCapture(e.pointerId);
+                header.removeEventListener('pointermove', drag);
+                header.removeEventListener('pointerup', dragEnd);
+                header.removeEventListener('pointercancel', dragEnd);
+                
+                savedNotesMap[noteId].left = parseFloat(noteEl.style.left || 0);
+                savedNotesMap[noteId].top = parseFloat(noteEl.style.top || 0);
+                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                
+                saveAndApplyGlobal(); 
             }
 
         }
@@ -540,61 +554,273 @@
 
         // Dock drag logic
         const dock = document.getElementById('dock');
-        const dockHandle = document.querySelector('.dock-drag-handle');
-        let dockPos1 = 0, dockPos2 = 0, dockPos3 = 0, dockPos4 = 0;
+        
+        let dockDragOffsetX = 0;
+        let dockDragOffsetY = 0;
+        let dockDragStartX = 0;
+        let dockDragStartY = 0;
+        let isDockDragging = false;
 
-        if (dockHandle) {
-            dockHandle.addEventListener('mousedown', dockDragStart);
-            dockHandle.addEventListener('touchstart', dockDragStart, { passive: false });
+        // Restore saved position
+        const savedDockPos = localStorage.getItem('stickyNotesMenuPosition');
+        if (savedDockPos) {
+            try {
+                const pos = JSON.parse(savedDockPos);
+                dock.style.right = 'auto';
+                dock.style.bottom = 'auto';
+                dock.style.left = pos.x + 'px';
+                dock.style.top = pos.y + 'px';
+                dock.classList.add('positioned');
+            } catch (e) {
+                console.error('Failed to parse dock position', e);
+            }
+        }
+
+        function getViewportBounds(el) {
+            const header = document.querySelector('.main-navbar');
+            const footer = document.querySelector('.site-footer');
+            
+            let minY = 10;
+            if (header) {
+                const headerRect = header.getBoundingClientRect();
+                if (headerRect.bottom > 0) minY = Math.max(minY, headerRect.bottom + 10);
+            }
+            
+            let footerTop = window.innerHeight;
+            if (footer) {
+                const footerRect = footer.getBoundingClientRect();
+                if (footerRect.top > 0 && footerRect.top < window.innerHeight) {
+                    footerTop = footerRect.top;
+                }
+            }
+            
+            return {
+                minX: 10,
+                minY: minY,
+                footerTop: footerTop
+            };
+        }
+
+        function applyNoteConstraints(noteEl) {
+            const bounds = getViewportBounds(noteEl);
+            let currentLeft = parseFloat(noteEl.style.left || 0);
+            let currentTop = parseFloat(noteEl.style.top || 0);
+            
+            // 1. First ensure it's not above the header or left of screen
+            if (currentTop < bounds.minY) currentTop = bounds.minY;
+            if (currentLeft < bounds.minX) currentLeft = bounds.minX;
+            
+            // 2. Set max dimensions so it physically cannot be resized into footer or right edge
+            let maxWidth = window.innerWidth - currentLeft - 10;
+            let maxHeight = bounds.footerTop - currentTop - 10;
+            
+            // Ensure reasonable minimums
+            maxWidth = Math.max(280, maxWidth);
+            maxHeight = Math.max(200, maxHeight);
+            
+            noteEl.style.maxWidth = maxWidth + 'px';
+            noteEl.style.maxHeight = maxHeight + 'px';
+            
+            // 3. Now verify if current size pushes it offscreen and clamp position
+            const elWidth = noteEl.offsetWidth;
+            const elHeight = noteEl.offsetHeight;
+            
+            const maxX = Math.max(bounds.minX, window.innerWidth - elWidth - 10);
+            const maxY = Math.max(bounds.minY, bounds.footerTop - elHeight - 10);
+            
+            currentLeft = Math.min(currentLeft, maxX);
+            currentTop = Math.min(currentTop, maxY);
+            
+            noteEl.style.left = currentLeft + 'px';
+            noteEl.style.top = currentTop + 'px';
+            
+            // 4. Update max constraints again based on finalized position
+            maxWidth = window.innerWidth - currentLeft - 10;
+            maxHeight = bounds.footerTop - currentTop - 10;
+            noteEl.style.maxWidth = Math.max(280, maxWidth) + 'px';
+            noteEl.style.maxHeight = Math.max(200, maxHeight) + 'px';
+            
+            return { x: currentLeft, y: currentTop };
+        }
+
+        function validateDockPosition() {
+            if (dock.style.left || dock.style.top) {
+                let currentLeft = parseFloat(dock.style.left || 0);
+                let currentTop = parseFloat(dock.style.top || 0);
+                
+                updateDockOrientation(currentLeft);
+                const clamped = clampDockPosition(currentLeft, currentTop);
+                
+                dock.style.left = clamped.x + 'px';
+                dock.style.top = clamped.y + 'px';
+            }
+        }
+        
+        function validateAllBounds() {
+            validateDockPosition();
+            document.querySelectorAll('.custom-floating-notepad').forEach(note => {
+                applyNoteConstraints(note);
+            });
+        }
+
+        window.addEventListener('resize', validateAllBounds);
+        window.addEventListener('scroll', validateAllBounds);
+
+        const DOCK_THRESHOLD = 80; // px from edge before switching to vertical
+        const DOCK_MARGIN = 12;     // px gap between snapped dock and edge
+
+        // Determine orientation based on x-position relative to the left/right edges.
+        // We use viewport fractions so it works on all screen sizes.
+        function updateDockOrientation(left) {
+            const header = document.querySelector('.main-navbar');
+            const footer = document.querySelector('.site-footer');
+            const headerH = header ? header.getBoundingClientRect().bottom : 0;
+            const footerTop = footer ? footer.getBoundingClientRect().top : window.innerHeight;
+
+            // Available width zone
+            const vw = window.innerWidth;
+            const nearLeft  = left <= DOCK_THRESHOLD;
+            const nearRight = (vw - left) <= DOCK_THRESHOLD + 150; // account for horizontal width
+
+            if (nearLeft || nearRight) {
+                dock.classList.add('docked-vertical');
+            } else {
+                dock.classList.remove('docked-vertical');
+            }
+        }
+
+        // Clamp dock fully inside viewport (header/footer safe area).
+        // Must be called AFTER updateDockOrientation so offsetWidth/Height are correct.
+        function clampDockPosition(left, top) {
+            const header = document.querySelector('.main-navbar');
+            const footer = document.querySelector('.site-footer');
+            const minY = header ? header.getBoundingClientRect().bottom + 4 : 0;
+            const maxY = (footer ? footer.getBoundingClientRect().top : window.innerHeight) - dock.offsetHeight - 4;
+            const minX = 4;
+            const maxX = window.innerWidth - dock.offsetWidth - 4;
+            return {
+                x: Math.max(minX, Math.min(left, Math.max(minX, maxX))),
+                y: Math.max(minY, Math.min(top,  Math.max(minY, maxY)))
+            };
+        }
+
+        if (dock) {
+            dock.addEventListener('pointerdown', dockDragStart);
+            dock.addEventListener('click', (e) => {
+                if (dock.hasDraggedSignificantDistance) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, { capture: true });
         }
 
         function dockDragStart(e) {
-            e.preventDefault();
-            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            // Only trigger on primary button (left mouse click or touch)
+            if (e.button !== undefined && e.button !== 0) return;
 
-            dockPos3 = clientX;
-            dockPos4 = clientY;
+            const rect = dock.getBoundingClientRect();
 
-            document.addEventListener('mouseup', dockDragEnd);
-            document.addEventListener('mousemove', dockDrag);
-            document.addEventListener('touchend', dockDragEnd);
-            document.addEventListener('touchmove', dockDrag, { passive: false });
+            // If dock is still using CSS centering (not yet positioned by JS), convert to absolute coords now
+            if (!dock.classList.contains('positioned')) {
+                dock.style.left = rect.left + 'px';
+                dock.style.top = rect.top + 'px';
+                dock.style.bottom = 'auto';
+                dock.classList.add('positioned');
+            }
+
+            dockDragOffsetX = e.clientX - rect.left;
+            dockDragOffsetY = e.clientY - rect.top;
+            
+            dockDragStartX = e.clientX;
+            dockDragStartY = e.clientY;
+            dock.hasDraggedSignificantDistance = false;
+            isDockDragging = true;
+
+            window.addEventListener('pointermove', dockDrag);
+            window.addEventListener('pointerup', dockDragEnd);
+            window.addEventListener('pointercancel', dockDragEnd);
         }
 
         function dockDrag(e) {
+            if (!isDockDragging) return;
+            
+            const dx = e.clientX - dockDragStartX;
+            const dy = e.clientY - dockDragStartY;
+            
+            if (!dock.hasDraggedSignificantDistance) {
+                if (Math.hypot(dx, dy) > 6) {
+                    dock.hasDraggedSignificantDistance = true;
+                } else {
+                    return;
+                }
+            }
+
             e.preventDefault();
-            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
 
-            dockPos1 = dockPos3 - clientX;
-            dockPos2 = dockPos4 - clientY;
-            dockPos3 = clientX;
-            dockPos4 = clientY;
+            let newLeft = e.clientX - dockDragOffsetX;
+            let newTop  = e.clientY - dockDragOffsetY;
 
-            // Remove right/bottom constraints to allow free movement
-            dock.style.right = 'auto';
-            dock.style.bottom = 'auto';
-            
-            // Constrain within window
-            let newTop = dock.offsetTop - dockPos2;
-            let newLeft = dock.offsetLeft - dockPos1;
-            
-            newTop = Math.max(0, Math.min(newTop, window.innerHeight - dock.offsetHeight));
-            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - dock.offsetWidth));
+            // 1. Decide orientation based on raw pointer x
+            updateDockOrientation(newLeft);
 
-            dock.style.top = newTop + "px";
-            dock.style.left = newLeft + "px";
+            // 2. Clamp position now that orientation is applied
+            const clamped = clampDockPosition(newLeft, newTop);
+
+            dock.style.left = clamped.x + 'px';
+            dock.style.top  = clamped.y + 'px';
         }
 
-        function dockDragEnd() {
-            document.removeEventListener('mouseup', dockDragEnd);
-            document.removeEventListener('mousemove', dockDrag);
-            document.removeEventListener('touchend', dockDragEnd);
-            document.removeEventListener('touchmove', dockDrag);
+        function dockDragEnd(e) {
+            if (!isDockDragging) return;
+            isDockDragging = false;
+            
+            window.removeEventListener('pointermove', dockDrag);
+            window.removeEventListener('pointerup', dockDragEnd);
+            window.removeEventListener('pointercancel', dockDragEnd);
+            
+            if (dock.hasDraggedSignificantDistance) {
+                let left = parseFloat(dock.style.left || 0);
+                let top  = parseFloat(dock.style.top  || 0);
+
+                // Snap to edge if near it
+                const vw = window.innerWidth;
+                const header = document.querySelector('.main-navbar');
+                const footer = document.querySelector('.site-footer');
+                const minY = header ? header.getBoundingClientRect().bottom + DOCK_MARGIN : DOCK_MARGIN;
+                const maxY = (footer ? footer.getBoundingClientRect().top : window.innerHeight) - dock.offsetHeight - DOCK_MARGIN;
+
+                if (left <= DOCK_THRESHOLD) left = DOCK_MARGIN;
+                else if (vw - (left + dock.offsetWidth) <= DOCK_THRESHOLD) left = vw - dock.offsetWidth - DOCK_MARGIN;
+
+                if (top <= minY + DOCK_THRESHOLD) top = minY;
+                else if (maxY - top <= DOCK_THRESHOLD) top = maxY;
+
+                // Final clamp after snap
+                const clamped = clampDockPosition(left, top);
+                dock.style.left = clamped.x + 'px';
+                dock.style.top  = clamped.y + 'px';
+
+                // Re-check orientation with snapped position
+                updateDockOrientation(clamped.x);
+
+                localStorage.setItem('stickyNotesMenuPosition', JSON.stringify({
+                    x: clamped.x,
+                    y: clamped.y
+                }));
+                
+                // Keep flag alive briefly to absorb the upcoming click event caused by dragging
+                setTimeout(() => { 
+                    dock.hasDraggedSignificantDistance = false; 
+                }, 120);
+            }
         }
 
-        window.onload = initializeApp;
+        window.onload = () => {
+            initializeApp();
+            requestAnimationFrame(() => {
+                validateAllBounds();
+            });
+        };
     </script>
     <footer class="site-footer">
         <div class="footer-container">

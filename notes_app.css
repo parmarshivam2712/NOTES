@@ -345,67 +345,75 @@ body {
 
 #dock {
     position: fixed;
-    right: 0;
-    bottom: 0;
-    width: 190px;
-    background: rgba(15, 23, 42, 0.92);
+    /* Default: bottom-center. JS overrides with saved position. */
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.94);
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 14px 10px 14px 10px;
-    border-radius: 24px 0 0 24px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 8px 12px;
+    border-radius: 30px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    gap: 8px;
     align-items: center;
-    box-shadow: -10px -10px 40px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     z-index: 2147483647;
-}
-
-.dock-drag-handle {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 8px;
     cursor: grab;
-    color: rgba(255, 255, 255, 0.5);
-    transition: color 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: border-radius 0.18s ease, background 0.2s ease;
 }
 
-.dock-drag-handle:active {
+/* When JS places the dock at an explicit position, remove the centering transform */
+#dock.positioned {
+    left: auto;
+    transform: none;
+    bottom: auto;
+}
+
+#dock:active {
     cursor: grabbing;
 }
 
-.dock-drag-handle:hover {
-    color: rgba(255, 255, 255, 0.9);
+#dock.docked-vertical {
+    flex-direction: column;
+    padding: 10px 10px;
+    border-radius: 18px;
+    align-items: stretch;
+    gap: 6px;
 }
 
-.dock-drag-handle svg {
-    width: 24px;
-    height: 24px;
-}
 
 .dock-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    padding: 9px 16px;
     border-radius: 999px;
+    font-family: inherit;
+    font-size: 13px;
     font-weight: 600;
     color: #ffffff;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.25s ease;
-    width: 100%;
-    max-width: 170px;
+    justify-content: flex-start;
+    gap: 8px;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    width: auto;
+    white-space: nowrap;
+    pointer-events: auto;
 }
 
 .dock-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.dock-btn * {
+    pointer-events: none;
 }
 
 .dock-btn svg {
@@ -414,6 +422,7 @@ body {
     stroke-width: 2.5;
     stroke: currentColor;
     fill: none;
+    pointer-events: none;
 }
 
 @keyframes notepadPopIn {
@@ -429,14 +438,14 @@ body {
 }
 
 .custom-floating-notepad {
-    position: absolute;
+    position: fixed;
     width: 600px;
     height: 360px;
     resize: both;
-    min-width: 360px;
-    min-height: 300px;
-    max-width: 90vw;
-    max-height: 75vh;
+    min-width: 280px;
+    min-height: 200px;
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 140px);
     background-color: var(--np-bg);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -747,23 +756,23 @@ body {
     }
 
     #dock {
-        position: fixed;
-        left: 16px;
-        right: 16px;
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        margin: 0 auto;
-        width: auto;
-        max-width: 450px;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 8px;
-        gap: 8px;
+        /* Remove strict positioning to allow floating */
+        max-width: 95vw;
         border-radius: 20px;
+        left: unset;
+        right: unset;
+        bottom: unset;
+        margin: 0;
+        justify-content: center;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
+    #dock.docked-vertical {
+        max-width: auto;
+    }
+
     .dock-btn {
-        padding: 10px 8px;
+        padding: 8px 10px;
         font-size: 11px;
         width: auto;
         flex: 1;
@@ -922,6 +931,8 @@ body.page-leaving {
     padding: 40px 24px 32px;
     margin-top: auto; /* Push footer to bottom on short pages */
     width: 100%;
+    position: relative;
+    z-index: 999999;
     order: 99; /* Ensure it stays below all other flex items */
 }
 
