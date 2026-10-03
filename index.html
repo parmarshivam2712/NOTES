@@ -300,9 +300,17 @@
                 noteEl.style.top = noteData.top + 'px';
             } else {
                 const bounds = typeof getViewportBounds === 'function' ? getViewportBounds() : { minY: 50 };
-                const offset = Math.floor(Math.random() * 50);
-                noteEl.style.top = (bounds.minY + offset) + 'px';
-                noteEl.style.left = (50 + offset + (document.querySelectorAll('.custom-floating-notepad').length * 20)) + 'px';
+                const isMobile = window.innerWidth <= 640;
+                if (isMobile) {
+                    const count = document.querySelectorAll('.custom-floating-notepad').length;
+                    const offset = (count * 15) % 60;
+                    noteEl.style.top = (bounds.minY + 10 + offset) + 'px';
+                    noteEl.style.left = '10px';
+                } else {
+                    const offset = Math.floor(Math.random() * 50);
+                    noteEl.style.top = (bounds.minY + offset) + 'px';
+                    noteEl.style.left = (50 + offset + (document.querySelectorAll('.custom-floating-notepad').length * 20)) + 'px';
+                }
             }
             
             if (noteData.width !== undefined && noteData.height !== undefined) {
@@ -641,46 +649,49 @@
             const bounds = getViewportBounds(noteEl);
             let currentLeft = parseFloat(noteEl.style.left || 0);
             let currentTop = parseFloat(noteEl.style.top || 0);
+            const isMobile = window.innerWidth <= 640;
             
-            // 1. First ensure it's not above the header or left of screen
+            // 1. Minimum position safety
             if (currentTop < bounds.minY) currentTop = bounds.minY;
             if (currentLeft < bounds.minX) currentLeft = bounds.minX;
             
-            // 2. Set max dimensions so it physically cannot be resized into footer or right edge
-            let maxWidth = window.innerWidth - currentLeft - 10;
-            let maxHeight = bounds.footerTop - currentTop - 10;
+            // 2. Responsive max dimensions
+            const maxAvailableWidth = Math.max(260, window.innerWidth - 20);
+            const maxAvailableHeight = Math.max(180, bounds.footerTop - bounds.minY - 15);
             
-            // Ensure reasonable minimums
-            maxWidth = Math.max(280, maxWidth);
-            maxHeight = Math.max(200, maxHeight);
+            let maxWidth = Math.max(260, window.innerWidth - currentLeft - 10);
+            let maxHeight = Math.max(180, bounds.footerTop - currentTop - 10);
+            
+            if (isMobile) {
+                maxWidth = maxAvailableWidth;
+                maxHeight = maxAvailableHeight;
+            }
             
             noteEl.style.maxWidth = maxWidth + 'px';
             noteEl.style.maxHeight = maxHeight + 'px';
             
-            // 3. Now verify if current size pushes it offscreen and clamp position
+            // 3. Clamp current dimensions if exceeding screen
+            if (noteEl.offsetWidth > window.innerWidth - 16) {
+                noteEl.style.width = (window.innerWidth - 16) + 'px';
+            }
+            
             const elWidth = noteEl.offsetWidth;
             const elHeight = noteEl.offsetHeight;
             
-            const maxX = Math.max(bounds.minX, window.innerWidth - elWidth - 10);
-            const maxY = Math.max(bounds.minY, bounds.footerTop - elHeight - 10);
+            const maxX = Math.max(bounds.minX, window.innerWidth - elWidth - 8);
+            const maxY = Math.max(bounds.minY, bounds.footerTop - elHeight - 8);
             
-            currentLeft = Math.min(currentLeft, maxX);
-            currentTop = Math.min(currentTop, maxY);
+            currentLeft = Math.max(bounds.minX, Math.min(currentLeft, maxX));
+            currentTop = Math.max(bounds.minY, Math.min(currentTop, maxY));
             
             noteEl.style.left = currentLeft + 'px';
             noteEl.style.top = currentTop + 'px';
-            
-            // 4. Update max constraints again based on finalized position
-            maxWidth = window.innerWidth - currentLeft - 10;
-            maxHeight = bounds.footerTop - currentTop - 10;
-            noteEl.style.maxWidth = Math.max(280, maxWidth) + 'px';
-            noteEl.style.maxHeight = Math.max(200, maxHeight) + 'px';
             
             return { x: currentLeft, y: currentTop };
         }
 
         function validateDockPosition() {
-            if (dock.style.left || dock.style.top) {
+            if (dock.style.left || dock.style.top || dock.classList.contains('positioned')) {
                 let currentLeft = parseFloat(dock.style.left || 0);
                 let currentTop = parseFloat(dock.style.top || 0);
                 
@@ -701,19 +712,19 @@
 
         window.addEventListener('resize', validateAllBounds);
         window.addEventListener('scroll', validateAllBounds);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(validateAllBounds, 100);
+        });
 
         const DOCK_THRESHOLD = 80; // px from edge before switching to vertical
         const DOCK_MARGIN = 12;     // px gap between snapped dock and edge
 
         // Determine orientation based on x-position relative to the left/right edges.
-        // We use viewport fractions so it works on all screen sizes.
         function updateDockOrientation(left) {
-            const header = document.querySelector('.main-navbar');
-            const footer = document.querySelector('.site-footer');
-            const headerH = header ? header.getBoundingClientRect().bottom : 0;
-            const footerTop = footer ? footer.getBoundingClientRect().top : window.innerHeight;
-
-            // Available width zone
+            if (window.innerWidth <= 640) {
+                dock.classList.remove('docked-vertical');
+                return;
+            }
             const vw = window.innerWidth;
             const nearLeft  = left <= DOCK_THRESHOLD;
             const nearRight = (vw - left) <= DOCK_THRESHOLD + 150; // account for horizontal width
@@ -726,17 +737,19 @@
         }
 
         // Clamp dock fully inside viewport (header/footer safe area).
-        // Must be called AFTER updateDockOrientation so offsetWidth/Height are correct.
         function clampDockPosition(left, top) {
             const header = document.querySelector('.main-navbar');
             const footer = document.querySelector('.site-footer');
-            const minY = header ? header.getBoundingClientRect().bottom + 4 : 0;
-            const maxY = (footer ? footer.getBoundingClientRect().top : window.innerHeight) - dock.offsetHeight - 4;
-            const minX = 4;
-            const maxX = window.innerWidth - dock.offsetWidth - 4;
+            const minY = header ? header.getBoundingClientRect().bottom + 6 : 6;
+            const footerTop = (footer && footer.getBoundingClientRect().top > 0 && footer.getBoundingClientRect().top < window.innerHeight)
+                ? footer.getBoundingClientRect().top 
+                : window.innerHeight;
+            const maxY = footerTop - dock.offsetHeight - 8;
+            const minX = 8;
+            const maxX = Math.max(minX, window.innerWidth - dock.offsetWidth - 8);
             return {
-                x: Math.max(minX, Math.min(left, Math.max(minX, maxX))),
-                y: Math.max(minY, Math.min(top,  Math.max(minY, maxY)))
+                x: Math.max(minX, Math.min(left, maxX)),
+                y: Math.max(minY, Math.min(top, Math.max(minY, maxY)))
             };
         }
 
