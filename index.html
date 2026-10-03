@@ -184,7 +184,29 @@
         let savedNotesMap = {};
         let activeZIndex = 100;
 
+        let isPlayground = new URLSearchParams(window.location.search).get('playground') === 'true';
+
         function initializeApp() {
+            if (isPlayground) {
+                // Hide header, footer, seo shell for a clean sandbox
+                const header = document.querySelector('.main-navbar');
+                const footer = document.querySelector('.site-footer');
+                const seo = document.querySelector('.seo-shell');
+                if (header) header.style.display = 'none';
+                if (footer) footer.style.display = 'none';
+                if (seo) seo.style.display = 'none';
+                
+                // Spawn tutorial notes
+                spawnNotepad(null, "Click my top bar and hold to drag me around the screen!", "1. Drag Me");
+                setTimeout(() => {
+                    spawnNotepad(null, "Click and drag my bottom-right corner to change my size.", "2. Resize Me");
+                }, 100);
+                setTimeout(() => {
+                    spawnNotepad(null, "Click my gear icon above and choose a cool theme like 'Matcha' or 'Cyberpunk'.", "3. Customize Me");
+                }, 200);
+                return;
+            }
+
             const storedPrefs = localStorage.getItem('webapp_notepadPrefs');
             const storedNotes = localStorage.getItem('webapp_savedNotesMap');
 
@@ -264,7 +286,9 @@
             }
 
             savedNotesMap[noteId] = noteData;
-            localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+            if (!isPlayground) {
+                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+            }
 
             const noteEl = document.createElement('div');
             noteEl.className = 'custom-floating-notepad';
@@ -299,7 +323,9 @@
                 }
                 savedNotesMap[noteId].width = noteEl.offsetWidth;
                 savedNotesMap[noteId].height = noteEl.offsetHeight;
-                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                if (!isPlayground) {
+                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                }
             });
             resizeObserver.observe(noteEl);
 
@@ -398,7 +424,9 @@
                 setTimeout(() => {
                     noteEl.remove();
                     delete savedNotesMap[noteId];
-                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                    if (!isPlayground) {
+                        localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                    }
                 }, 250);
             });
 
@@ -421,7 +449,9 @@
 
             titleEl.addEventListener('input', () => {
                 savedNotesMap[noteId] = { text: textarea.value, title: titleEl.innerText };
-                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                if (!isPlayground) {
+                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                }
             });
 
             let typingTimer;
@@ -430,7 +460,9 @@
                 saveStatus.style.opacity = '0';
                 typingTimer = setTimeout(() => {
                     savedNotesMap[noteId] = { text: textarea.value, title: titleEl.innerText };
-                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                    if (!isPlayground) {
+                        localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                    }
                     saveStatus.style.opacity = '1';
                     setTimeout(() => saveStatus.style.opacity = '0', 1500);
                 }, 500);
@@ -458,7 +490,9 @@
                 if (imageData) notepadPrefs.bgImage = imageData;
                 else if (clearImg) notepadPrefs.bgImage = null;
 
-                localStorage.setItem('webapp_notepadPrefs', JSON.stringify(notepadPrefs));
+                if (!isPlayground) {
+                    localStorage.setItem('webapp_notepadPrefs', JSON.stringify(notepadPrefs));
+                }
 
                 document.querySelectorAll('.custom-floating-notepad').forEach(note => {
                     applyStylesToNote(note, note.querySelector('.notepad-textarea'));
@@ -533,7 +567,9 @@
                 
                 savedNotesMap[noteId].left = parseFloat(noteEl.style.left || 0);
                 savedNotesMap[noteId].top = parseFloat(noteEl.style.top || 0);
-                localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                if (!isPlayground) {
+                    localStorage.setItem('webapp_savedNotesMap', JSON.stringify(savedNotesMap));
+                }
                 
                 saveAndApplyGlobal(); 
             }
@@ -803,10 +839,12 @@
                 // Re-check orientation with snapped position
                 updateDockOrientation(clamped.x);
 
-                localStorage.setItem('stickyNotesMenuPosition', JSON.stringify({
-                    x: clamped.x,
-                    y: clamped.y
-                }));
+                if (!isPlayground) {
+                    localStorage.setItem('stickyNotesMenuPosition', JSON.stringify({
+                        x: clamped.x,
+                        y: clamped.y
+                    }));
+                }
                 
                 // Keep flag alive briefly to absorb the upcoming click event caused by dragging
                 setTimeout(() => { 
